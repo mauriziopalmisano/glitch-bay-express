@@ -8,13 +8,58 @@ export const index = (req, res) => {
 };
 
 export const show = (req, res) => {
-    db.query('SELECT * FROM invoices WHERE id = ?', [req.params.id], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (results.length === 0) return res.status(404).json({ error: 'Fattura non trovata' });
-        res.json({ results: results[0] });
-    });
-};
 
+    const sql = `
+        SELECT
+            invoices.*,
+
+            users.name,
+            users.surname,
+            users.mail,
+            users.address,
+            users.phone,
+
+            products.id AS product_id,
+            products.name AS product_name,
+            products.price,
+            products.img,
+
+            product_invoice.qty,
+            product_invoice.paid
+
+        FROM invoices
+
+        JOIN users
+            ON users.id_invoice = invoices.id
+
+        JOIN product_invoice
+            ON product_invoice.id_invoice = invoices.id
+
+        JOIN products
+            ON products.id = product_invoice.id_product
+
+        WHERE invoices.id = ?
+    `;
+
+    db.query(sql, [req.params.id], (err, results) => {
+
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                error: "Fattura non trovata"
+            });
+        }
+
+        res.status(200).json(results);
+
+    });
+
+};
 export const store = (req, res) => {
     const { total_amount, status, shipping_cost, tracking_number, payment_method, user } = req.body;
 
