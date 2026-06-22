@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import {db} from './config/db.js';
+import { db } from './config/db.js';
 import productsRoutes from './routes/products.js';
 import categoriesRoutes from './routes/categories.js';
 import invoicesRoutes from './routes/invoices.js';
@@ -23,6 +23,7 @@ app.use('/users', usersRoutes);
 
 app.use(errorsHandler);
 app.use(notFound);
+app.use("/img", express.static("data/img"));
 app.listen(server_port, (error) => {
     if (error) {
         console.error(`ERRORE: la porta ${server_port} è già in utilizzo`);
